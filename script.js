@@ -1,26 +1,42 @@
-var i = 0;
+/**
+ * Initiates the process of unsubscribing from YouTube channels by finding channel elements on the page
+ * and clicking the 'Unsubscribe' button for each. It uses an interval to perform actions every 500ms.
+ */
+class ChannelUnsubscriber {
+  constructor() {
+    this.index = 0;
+    this.intervalId = setInterval(() => this.unsubscribeChannel(), 500);
+  }
 
-function unsubscribeChannel() {
-    const channelElements = Array.from(document.getElementsByTagName('ytd-channel-renderer')); // find all channel elements on the page
+  /**
+   * Performs the action of unsubscribing from a single YouTube channel and confirms the action.
+   * It logs the progress and stops when there are no more channels to unsubscribe from.
+   */
+  unsubscribeChannel() {
+    const channelElements = Array.from(document.getElementsByTagName('ytd-channel-renderer'));
+    if (this.index < channelElements.length) {
+      const unsubscribeButton = channelElements[this.index].querySelector("[aria-label^='Unsubscribe from']");
+      unsubscribeButton.click();
 
-    if (i < channelElements.length) { // check if there are more channels to unsubscribe from
-        channelElements[i].querySelector("[aria-label^='Unsubscribe from']").click(); // click the unsubscribe button
+      setTimeout(() => {
+        const confirmButton = document.getElementById('confirm-button').querySelector("[aria-label^='Unsubscribe']");
+        if (confirmButton) {
+          confirmButton.click();
+        } else {
+          console.error('Confirm button not found');
+        }
+      }, 300);
 
-        setTimeout(() => { // set a timeout to confirm the unsubscribe action
-            const confirmButton = document.getElementById('confirm-button').querySelector("[aria-label^='Unsubscribe']");
-            if (confirmButton) {
-                confirmButton.click();
-            } else {
-                console.error('Confirm button not found');
-            }
-        }, 300);
-        console.log(i + ' unsubscribed'); // log the progress
-        i++;
+      console.log(`${this.index} unsubscribed`);
+      this.index++;
     } else {
-        console.log('No more channels to unsubscribe from.');
-        clearInterval(intervalId); // clear the interval to stop the function
+      console.log('No more channels to unsubscribe from.');
+      clearInterval(this.intervalId);
     }
-    console.log(channelElements.length - i + ' remaining');
+
+    console.log(`${channelElements.length - this.index} remaining`);
+  }
 }
 
-const intervalId = setInterval(unsubscribeChannel, 500); //execute the function every 500 milliseconds
+// Start the unsubscription process
+new ChannelUnsubscriber();
